@@ -23,17 +23,18 @@ namespace AzureBuildReport
 
             string[] Lines =
                 {
-            "< !DOCTYPE html><html><head><style>table {  font-family: arial, sans - serif; border - collapse: collapse; width: 100 %;}td, th; border: 1px solid #dddddd;  text-align: left;  padding: 8px;}</style></head><body><table>",
+            "<!DOCTYPE html><html><head><style>table {  font-family: arial, sans - serif; border - collapse: collapse; width: 100 %;}td, th; border: 1px solid #dddddd;  text-align: left;  padding: 8px;}</style></head><body><table>",
             "<tr><th>Build Name</th><th>Project Name</th><th>Session Name</th><th>Browser Name</th><th>Browser Version</th><th>OS Name</th><th>OS Version</th><th>Device</th><th>Status</tr>"
 
         };
+
 
 
             await System.IO.File.WriteAllLinesAsync("./output.html", Lines);
 
             var userName = Environment.GetEnvironmentVariable("BROWSERSTACK_USERNAME");
             var accessKey = Environment.GetEnvironmentVariable("BROWSERSTACK_ACCESS_KEY");
-            var buildName = "BStack Build Number 1";
+            var buildName = Environment.GetEnvironmentVariable("BROWSERSTACK_BUILD_NAME");
 
 
             var client = new RestClient("https://api.browserstack.com");
