@@ -31,18 +31,19 @@ namespace AzureBuildReport
 
             await System.IO.File.WriteAllLinesAsync("./output.html", Lines);
 
-            var userName = Environment.GetEnvironmentVariable("BROWSERSTACK_USERNAME") ?? "";
-            var accessKey = Environment.GetEnvironmentVariable("BROWSERSTACK_ACCESS_KEY") ?? "";
+            var userName = Environment.GetEnvironmentVariable("BROWSERSTACK_USERNAME");
+            var accessKey = Environment.GetEnvironmentVariable("BROWSERSTACK_ACCESS_KEY");
             var buildName = Environment.GetEnvironmentVariable("BROWSERSTACK_BUILD_NAME") ?? "BStack Build Number 1";
 
 
             var client = new RestClient("https://api.browserstack.com");
             client.Authenticator = new HttpBasicAuthenticator(userName, accessKey);
+            Console.WriteLine("username: "+userName);
             var buildApiRequest = new RestRequest("https://api.browserstack.com/automate/builds.json?limit=40");
             var buildQueryResult = await client.ExecuteAsync(buildApiRequest);
             var buildJsonStr = buildQueryResult.Content ?? "";
 
-            if (buildJsonStr.Length > 2)
+            if (!buildJsonStr.Equals(""))
             {
                 var buildList = JArray.Parse(buildJsonStr);
                 if (buildList.ToString().Length != 0)
