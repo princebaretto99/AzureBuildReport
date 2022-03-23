@@ -33,7 +33,7 @@ namespace AzureBuildReport
 
             var userName = Environment.GetEnvironmentVariable("BROWSERSTACK_USERNAME");
             var accessKey = Environment.GetEnvironmentVariable("BROWSERSTACK_ACCESS_KEY");
-            var buildName = Environment.GetEnvironmentVariable("BROWSERSTACK_BUILD_NAME") ?? "BStack Build Number 1";
+            var buildName = "BStack Build Number 1";
 
 
             var client = new RestClient("https://api.browserstack.com");
@@ -49,7 +49,6 @@ namespace AzureBuildReport
                 if (buildList.ToString().Length != 0)
                 {
 
-
                     foreach (JObject buildObj in buildList)
                     {
                         var build = buildObj["automation_build"];
@@ -61,6 +60,8 @@ namespace AzureBuildReport
                         }
                     }
                 }
+
+                Console.WriteLine("Here:  "+BuildId);
             }
 
             if (BuildId.Equals(""))
