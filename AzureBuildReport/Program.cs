@@ -38,7 +38,7 @@ namespace AzureBuildReport
 
             var client = new RestClient("https://api.browserstack.com");
             client.Authenticator = new HttpBasicAuthenticator(userName, accessKey);
-            Console.WriteLine("username: "+userName);
+            Console.WriteLine("username: "+userName.Length);
             var buildApiRequest = new RestRequest("https://api.browserstack.com/automate/builds.json?limit=40");
             var buildQueryResult = await client.ExecuteAsync(buildApiRequest);
             var buildJsonStr = buildQueryResult.Content ?? "";
