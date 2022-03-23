@@ -34,7 +34,7 @@ namespace AzureBuildReport
 
             var userName = Environment.GetEnvironmentVariable("BROWSERSTACK_USERNAME");
             var accessKey = Environment.GetEnvironmentVariable("BROWSERSTACK_ACCESS_KEY");
-            var buildName = Environment.GetEnvironmentVariable("BROWSERSTACK_BUILD_NAME");
+            var buildName = "BStack Build Number 1";
 
 
             var client = new RestClient("https://api.browserstack.com");
