@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Remote;
+using OpenQA.Selenium.Support.UI;
 using Newtonsoft.Json.Linq;
 using RestSharp;
 using RestSharp.Authenticators;
@@ -20,6 +23,50 @@ namespace AzureBuildReport
             var BuildId = "";
             var Limit = 100;
             var Offset = 0;
+            var userName = Environment.GetEnvironmentVariable("BROWSERSTACK_USERNAME") ?? "";
+            var accessKey = Environment.GetEnvironmentVariable("BROWSERSTACK_ACCESS_KEY") ?? "";
+            //var buildName = "BStack Build Number 1";
+            var buildName = Environment.GetEnvironmentVariable("BROWSERSTACK_BUILD_NAME");
+
+            IWebDriver driver;
+            OpenQA.Selenium.Chrome.ChromeOptions capability = new OpenQA.Selenium.Chrome.ChromeOptions();
+            capability.AddAdditionalCapability("os_version", "10", true);
+            capability.AddAdditionalCapability("resolution", "1920x1080", true);
+            capability.AddAdditionalCapability("browser", "Chrome", true);
+            capability.AddAdditionalCapability("browser_version", "latest", true);
+            capability.AddAdditionalCapability("os", "Windows", true);
+            capability.AddAdditionalCapability("name", "BStack-[C_sharp] Sample Test", true); // test name
+            capability.AddAdditionalCapability("build", buildName, true); // CI/CD job or build name
+            capability.AddAdditionalCapability("browserstack.user", userName, true);
+            capability.AddAdditionalCapability("browserstack.key", accessKey, true);
+
+            driver = new RemoteWebDriver(new Uri("https://hub-cloud.browserstack.com/wd/hub/"), capability);
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+            try
+            {
+                driver.Navigate().GoToUrl("https://bstackdemo.com/");
+                // getting name of the product
+                IWebElement product = driver.FindElement(By.XPath("//*[@id='1']/p"));
+                wait.Until(driver => product.Displayed);
+                String product_on_page = product.Text;
+                // clicking the 'Add to Cart' button
+                IWebElement cart_btn = driver.FindElement(By.XPath("//*[@id='1']/div[4]"));
+                wait.Until(driver => cart_btn.Displayed);
+                cart_btn.Click();
+                // waiting for the Cart pane to appear
+                wait.Until(driver => driver.FindElement(By.ClassName("float-cart__content")).Displayed);
+                // getting name of the product in the cart
+                String product_in_cart = driver.FindElement(By.XPath("//*[@id='__next']/div/div/div[2]/div[2]/div[2]/div/div[3]/p[1]")).Text;
+                if (product_on_page == product_in_cart)
+                {
+                    ((IJavaScriptExecutor)driver).ExecuteScript("browserstack_executor: {\"action\": \"setSessionStatus\", \"arguments\": {\"status\":\"passed\", \"reason\": \" Product has been successfully added to the cart!\"}}");
+                }
+            }
+            catch
+            {
+                ((IJavaScriptExecutor)driver).ExecuteScript("browserstack_executor: {\"action\": \"setSessionStatus\", \"arguments\": {\"status\":\"failed\", \"reason\": \" Some elements failed to load.\"}}");
+            }
+            driver.Quit();
 
             string[] Lines =
                 {
@@ -32,10 +79,7 @@ namespace AzureBuildReport
 
             await System.IO.File.WriteAllLinesAsync("./output.html", Lines);
 
-            var userName = Environment.GetEnvironmentVariable("BROWSERSTACK_USERNAME") ?? "";
-            var accessKey = Environment.GetEnvironmentVariable("BROWSERSTACK_ACCESS_KEY")?? "";
-            var buildName = "BStack Build Number 1";
-            //var buildName = Environment.GetEnvironmentVariable("BROWSERSTACK_BUILD_NAME") ?? "BStack Build Number 1";
+            
 
 
             var client = new RestClient("https://api.browserstack.com");
@@ -101,7 +145,7 @@ namespace AzureBuildReport
                         "</td><td>" + session["browser_version"] +
                         "</td><td>" + session["os"] +
                         "</td><td>" + session["os_version"] +
-                        "</td><td>" + session["device"] +
+                            "</td><td>" + session["device"] +
                         "</td><td>" + session["status"] + "</tr>" };
                                     await System.IO.File.AppendAllLinesAsync("./output.html", textContextToAdd);
                                 }
