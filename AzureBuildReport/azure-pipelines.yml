@@ -1,0 +1,37 @@
+﻿pool:
+  name: Azure Pipelines
+steps:
+- task: browserstackcom.browserstack-vsts-extension.browserstack-config-task.BrowserStackConfig@0
+  displayName: 'BrowserStack configuration setup'
+  inputs:
+    BrowserStackServiceEndPoint: 'Demo-Account-BrowserStack'
+  continueOnError: true
+
+- script: 'cd AzureBuildReport'
+  displayName: 'Command Line Script'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Dotnet Restore'
+  inputs:
+    command: restore
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet build'
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet run'
+  inputs:
+    command: run
+    arguments: '--project AzureBuildReport'
+
+- script: |
+   echo %BROWSERSTACK_BUILD_NAME%
+   cd AzureBuildReport
+   cat output.html
+  displayName: 'Command Line Script'
+
+- task: PublishPipelineArtifact@1
+  displayName: 'Publish Pipeline Artifact'
+  inputs:
+    targetPath: ./AzureBuildReport/output.html
+    artifact: 'BrowserStack Report'

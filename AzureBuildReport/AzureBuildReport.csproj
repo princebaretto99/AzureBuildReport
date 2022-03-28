@@ -8,10 +8,14 @@
     <None Remove="Newtonsoft.Json" />
     <None Remove="RestSharp" />
     <None Remove="Selenium.WebDriver" />
+    <None Remove="Reports\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="RestSharp" Version="107.3.0" />
     <PackageReference Include="Selenium.WebDriver" Version="3.141.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Reports\" />
   </ItemGroup>
 </Project>
